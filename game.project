@@ -1,0 +1,5 @@
+[project]
+title = RuStoreBilling
+
+[library]
+include_dirs = extension-rustore-billing,extension-rustore-core
