@@ -8,11 +8,11 @@ namespace RuStoreSDK
 {
 	class RuStoreChannelListener
 	{
-		private:
+	private:
 		jobject javaObject = nullptr;
 		const char* signature = "Lru/rustore/defold/core/callbacks/IRuStoreChannelListener;";
 		
-		public:
+	public:
 		jobject GetJWrapper();
 		const char* GetSignature();
 		
@@ -20,6 +20,7 @@ namespace RuStoreSDK
 		~RuStoreChannelListener();
 		
 		void _OnMessage(JNIEnv* env, jstring jchannel, jstring jvalue);
+		void _OnMessage(JNIEnv* env, jstring jchannel, jstring jvalue0, jstring jvalue1);
 		static RuStoreChannelListener* Instance();
 	};
 }

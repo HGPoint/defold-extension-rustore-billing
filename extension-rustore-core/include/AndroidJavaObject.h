@@ -11,10 +11,7 @@ namespace RuStoreSDK
 		jclass cls;
 		jobject obj;
 
-		AndroidJavaObject()
-		{
-			cls = nullptr;
-			obj = nullptr;
-		}
+		AndroidJavaObject();
+		void Free(JNIEnv* env);
 	};
 }

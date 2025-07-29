@@ -51,11 +51,25 @@ void RuStoreChannelListener::_OnMessage(JNIEnv* env, jstring jchannel, jstring j
     const char* channel = env->GetStringUTFChars(jchannel, 0);
     const char* value = env->GetStringUTFChars(jvalue, 0);
 
-    auto queueCallbackItem = std::make_shared<QueueCallbackItem>((std::string(channel)), (std::string(value)));
-    QueueCallbackManager::Instance()->PushQueueCallback(queueCallbackItem);
+    auto item = std::make_shared<QueueCallbackItem>((std::string(channel)), (std::string(value)));
+    QueueCallbackManager::Instance()->PushQueueCallback(item);
 
     env->ReleaseStringUTFChars(jchannel, channel);
     env->ReleaseStringUTFChars(jvalue, value);
+}
+
+void RuStoreChannelListener::_OnMessage(JNIEnv* env, jstring jchannel, jstring jvalue0, jstring jvalue1)
+{
+    const char* channel = env->GetStringUTFChars(jchannel, 0);
+    const char* value0 = env->GetStringUTFChars(jvalue0, 0);
+    const char* value1 = env->GetStringUTFChars(jvalue1, 0);
+
+    auto item = std::make_shared<QueueCallbackItemTwoParams>(std::string(channel), std::string(value0), std::string(value1));
+    QueueCallbackManager::Instance()->PushQueueCallback(item);
+
+    env->ReleaseStringUTFChars(jchannel, channel);
+    env->ReleaseStringUTFChars(jvalue0, value0);
+    env->ReleaseStringUTFChars(jvalue1, value1);
 }
 
 RuStoreChannelListener* RuStoreChannelListener::Instance()
@@ -71,6 +85,12 @@ extern "C"
     {
         auto castobj = reinterpret_cast<RuStoreChannelListener*>(pointer);
         castobj->_OnMessage(env, channel, value);
+    }
+
+    JNIEXPORT void JNICALL Java_ru_rustore_defold_core_wrappers_RuStoreChannelListenerWrapper_nativeOnMessageTwoParams(JNIEnv* env, jobject obj, jlong pointer, jstring channel, jstring value0, jstring value1)
+    {
+        auto castobj = reinterpret_cast<RuStoreChannelListener*>(pointer);
+        castobj->_OnMessage(env, channel, value0, value1);
     }
 }
 

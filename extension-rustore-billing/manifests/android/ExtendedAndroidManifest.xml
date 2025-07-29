@@ -27,7 +27,7 @@
                 android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
                 android:screenOrientation="{{orientation-support}}"
                 android:exported="true"
-                android:launchMode="singleInstance">
+                android:launchMode="singleTask">
             <meta-data android:name="android.app.lib_name"
                     android:value="{{exe-name}}" />
             <intent-filter>

@@ -5,8 +5,11 @@
 
 #include <dmsdk/sdk.h>
 #include <dmsdk/dlib/android.h>
+#include "iap_core.h"
 
+static IAPCore g_IAPCore;
 static int Connect(lua_State* L);
+bool GetCoreAuthorizationStatus();
 int ConnectCallback(const char* channel, dmScript::LuaCallbackInfo* callback);
 
 #endif  // RUSTORECORE_H

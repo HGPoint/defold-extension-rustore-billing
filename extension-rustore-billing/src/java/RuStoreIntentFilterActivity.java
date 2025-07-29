@@ -25,24 +25,26 @@ public class RuStoreIntentFilterActivity extends Activity {
 
 		if (savedInstanceState == null) {
 			RuStoreBilling.onNewIntent(getIntent());
-			startGameActivity(null, defoldActivityClassName);
 		}
+
+		startGameActivity(null, defoldActivityClassName);
+		finish();
 	}
 
 	@Override
 	public void onNewIntent(Intent newIntent)
 	{
 		super.onNewIntent(newIntent);
-		setIntent(newIntent);
 
 		RuStoreBilling.onNewIntent(newIntent);
 		startGameActivity(newIntent, defoldActivityClassName);
+		finish();
 	}
 
 	private void startGameActivity(Intent intent, String gameActivityClassName) {
 		Class<?> gameActivityClass = getActivityClass(gameActivityClassName);
 		if (gameActivityClass != null) {
-		Intent newIntent = new Intent(this, gameActivityClass);
+			Intent newIntent = new Intent(this, gameActivityClass);
 			if (intent != null) newIntent.putExtras(intent.getExtras());
 			startActivity(newIntent);
 		}

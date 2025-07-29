@@ -5,7 +5,3 @@ repositories {
         url = uri("https://artifactory-external.vkpartner.ru/artifactory/maven")
     }
 }
-
-dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.7.10"
-}
