@@ -48,7 +48,7 @@ public class RuStoreJsonConverter {
 
         } catch (Exception e) {
             e.printStackTrace();
-            return "{}";
+            return "[]";
         }
     }
 
@@ -73,6 +73,7 @@ public class RuStoreJsonConverter {
             //     defoldState = IapJNI.TRANS_STATE_PURCHASING;
             //     break;
 			case "Failure":
+			case "Cancelled":
                 defoldState = 2;
                 break;
             case "PAID":
@@ -138,6 +139,27 @@ public class RuStoreJsonConverter {
             return "{}";
         }
     }
+
+	public static String convertPurchaseProductFailure(String jsonString) {
+		//{"productId": "com.happygames.mergecafe.sku00199", "cause": {"detailMessage":"RuStore User Not Authorized","simpleName":"RuStoreUserUnauthorizedException"}}
+		try {
+
+			JSONObject original = new JSONObject(jsonString);
+			String ident = convertIdent(original.getString("productId"));
+
+			original.put("ident", ident);
+			original.put("state", 2);
+			original.put("date", toISO8601(new Date()));
+			original.put("trans_ident", "");
+			String result = original.toString();
+			Log.d(TAG, "INFO:RUSTORECORE: convertPurchaseProductFailure() => " + result);
+			return result;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "{}";
+        }
+	}
 
 	public static String convertPurchaseDetails(String jsonString) {
 
