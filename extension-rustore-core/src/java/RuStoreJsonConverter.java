@@ -145,7 +145,10 @@ public class RuStoreJsonConverter {
 		try {
 
 			JSONObject original = new JSONObject(jsonString);
-			String ident = convertIdent(original.getString("productId"));
+			String ident = "";
+			if(original.has("productId")){
+				ident = convertIdent(original.getString("productId"));
+			}
 
 			original.put("ident", ident);
 			original.put("state", 2);
@@ -183,19 +186,28 @@ public class RuStoreJsonConverter {
 			JSONObject data = original.getJSONObject("data");
 
 			String type = original.getString("type");
-			String ident = convertIdent(data.getString("productId"));
+			String ident = "";
+			if(data.has("productId")){
+				ident = convertIdent(data.getString("productId"));
+			}
 
 			original.put("ident", ident);
 			original.put("state", purchaseStateToDefoldState(type));
 			original.put("date", toISO8601(new Date()));
-			original.put("trans_ident", data.get("orderId"));
+			if(data.has("orderId")){
+				original.put("trans_ident", data.get("orderId"));
+			}
 
 			switch(type) {
 				case "Failure":
 					break;
 				case "Success":
-					original.put("receipt", data.get("purchaseId"));
-					original.put("signature", data.get("subscriptionToken"));
+					if(data.has("purchaseId")){
+						original.put("receipt", data.get("purchaseId"));
+					}
+					if(data.has("subscriptionToken")){
+						original.put("signature", data.get("subscriptionToken"));
+					}
 					original.put("original_json", jsonString);
 					break;
         	}
