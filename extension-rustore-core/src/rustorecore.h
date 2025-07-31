@@ -10,6 +10,7 @@
 static IAPCore g_IAPCore;
 static int Connect(lua_State* L);
 bool GetCoreAuthorizationStatus();
+void CallBackCancelPurchase();
 int ConnectCallback(const char* channel, dmScript::LuaCallbackInfo* callback);
 
 #endif  // RUSTORECORE_H

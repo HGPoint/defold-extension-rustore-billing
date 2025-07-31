@@ -116,13 +116,18 @@ public class RuStoreJsonConverter {
 			for (int i = 0; i < jsonArray.length(); i++) {
 				JSONObject original = jsonArray.getJSONObject(i);
 
+				String purchaseState = original.getString("purchaseState");
+				if(purchaseState.equals("INVOICE_CREATED")){
+					continue;
+				}
+
 				String ident = convertIdent(original.getString("productId"));
 				Log.d(TAG, "INFO:RUSTORECORE: convertProductDetails() ident: " + ident);
 
             	original.put("ident", ident);
 				original.put("currency_code", original.get("currency"));
 				original.put("price_string", original.get("amountLabel"));
-				original.put("state", purchaseStateToDefoldState(original.getString("purchaseState")));
+				original.put("state", purchaseStateToDefoldState(purchaseState));
 				original.put("trans_ident", original.get("orderId"));
 				original.put("date", toISO8601(new Date()));
 				original.put("receipt", original.get("purchaseId"));
@@ -132,13 +137,30 @@ public class RuStoreJsonConverter {
 				return original.toString();
 			}
 
-			return "{}";
+			return "{ \"state\":2, \"date\":\"" + toISO8601(new Date()) + "\", \"ident\":\"\" }";
 
         } catch (Exception e) {
             e.printStackTrace();
             return "{}";
         }
     }
+
+
+	public static String getPurchaseProductFailure() {
+		try {
+			JSONObject original = new JSONObject();
+			original.put("ident", "");
+			original.put("state", 2);
+			original.put("date", toISO8601(new Date()));
+			original.put("trans_ident", "");
+			String result = original.toString();
+			Log.d(TAG, "INFO:RUSTORECORE: getPurchaseProductFailure() => " + result);
+			return result;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "{}";
+        }
+	}
 
 	public static String convertPurchaseProductFailure(String jsonString) {
 		//{"productId": "com.happygames.mergecafe.sku00199", "cause": {"detailMessage":"RuStore User Not Authorized","simpleName":"RuStoreUserUnauthorizedException"}}

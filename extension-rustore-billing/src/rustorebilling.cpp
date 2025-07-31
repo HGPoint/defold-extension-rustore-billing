@@ -414,6 +414,13 @@ static int IAP_Buy(lua_State* L)
     dmLogInfo("IAP_Buy");
 
     DM_LUA_STACK_CHECK(L, 0);
+
+    bool auth = GetCoreAuthorizationStatus();
+    if(!auth){
+        GetPurchases(L);
+        CallBackCancelPurchase();
+        return 0;
+    }
     
     const char* productId = (char*)luaL_checkstring(L, 1);
     dmLogInfo("IAP_Buy productId = %s", productId);
@@ -528,6 +535,7 @@ static int IAP_SetListener(lua_State* L)
     ConnectCallback("rustore_on_purchase_product_success", callback);
     ConnectCallback("rustore_on_purchase_product_failure", callback);
     ConnectCallback("rustore_on_get_purchases_success", callback);
+    ConnectCallback("rustore_on_get_purchases_failure", callback);
 
     bool auth = GetCoreAuthorizationStatus();
     if(auth){
