@@ -45,7 +45,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <!-- Set your appscheme -->
-                <data android:scheme="com.happygames.ranchadventures.rustore.scheme" />
+                <data android:scheme="com.happygames.mergecafe.rustore.scheme" />
             </intent-filter>
         </activity>
 
