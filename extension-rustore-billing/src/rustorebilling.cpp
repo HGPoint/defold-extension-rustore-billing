@@ -21,32 +21,15 @@ struct IAP
     {
         memset(this, 0, sizeof(*this));
         m_autoFinishTransactions = true;
+        m_buyStarted = true;
         m_ProviderId = PROVIDER_ID_RUSTORE;
     }
     bool            m_autoFinishTransactions;
+    bool            m_buyStarted;
     int             m_ProviderId;
 };
 
 static IAP g_IAP;
-
-JavaVM* g_JavaVM = NULL; 
-
-void Init(JNIEnv* env) {
-    env->GetJavaVM(&g_JavaVM);
-}
-
-JNIEnv* GetJNIEnv() {
-    JNIEnv* env = nullptr;
-    jint res = g_JavaVM->GetEnv((void**)&env, JNI_VERSION_1_6);
-    if (res == JNI_EDETACHED) {
-        dmLogInfo("g_JavaVM->AttachCurrentThread 1");
-        if (g_JavaVM->AttachCurrentThread(&env, nullptr) != 0) {
-            dmLogInfo("g_JavaVM->AttachCurrentThread 2");
-            return nullptr;
-        }
-    }
-    return env;
-}
 
 static int Init(lua_State* L)
 {
@@ -55,8 +38,6 @@ static int Init(lua_State* L)
 
     dmAndroid::ThreadAttacher thread;
     JNIEnv* env = thread.GetEnv();
-
-    env->GetJavaVM(&g_JavaVM);
 
     jclass cls = dmAndroid::LoadClass(env, "ru.rustore.defold.billing.RuStoreBilling");
     jmethodID method = env->GetStaticMethodID(cls, "init", "(Landroid/app/Activity;Ljava/lang/String;Ljava/lang/String;Z)V");
@@ -422,10 +403,10 @@ static int IAP_Buy(lua_State* L)
         return 0;
     }
     
+    g_IAP.m_buyStarted = true;
+
     const char* productId = (char*)luaL_checkstring(L, 1);
     dmLogInfo("IAP_Buy productId = %s", productId);
-    // dmAndroid::ThreadAttacher thread;
-    // JNIEnv* env = thread.GetEnv();
 
     PurchaseProduct(L);
 
@@ -465,20 +446,6 @@ static int IAP_Finish(lua_State* L)
         dmAndroid::ThreadAttacher thread;
         JNIEnv* env = thread.GetEnv();
 
-        if (!env) {
-            dmLogInfo("JNIEnv не инициализирован или недействителен");
-            return 0;
-        }
-
-        if (!thread.IsAttached()) {
-            dmLogInfo("Среда JNI не прикреплена к текущему потоку");
-            env = GetJNIEnv();
-            if(env == nullptr){
-                dmLogInfo("JNIEnv не инициализирован или недействителен");
-                return 0;
-            }
-        }
-
         jclass cls = dmAndroid::LoadClass(env, "ru.rustore.defold.billing.RuStoreBilling");
 
         if (!cls) {
@@ -505,9 +472,6 @@ static int IAP_Acknowledge(lua_State* L)
     DM_LUA_STACK_CHECK(L, 0);
 
     dmLogInfo("IAP_Acknowledge");
-    
-    // dmAndroid::ThreadAttacher thread;
-    // JNIEnv* env = thread.GetEnv();
 
     return 0;
 }
@@ -516,9 +480,6 @@ static int IAP_Restore(lua_State* L)
 {
     dmLogInfo("IAP_Restore");
     DM_LUA_STACK_CHECK(L, 1);
-    
-    // dmAndroid::ThreadAttacher thread;
-    // JNIEnv* env = thread.GetEnv();
 
     return 1;
 }
@@ -566,9 +527,6 @@ static int IAP_ProcessPendingTransactions(lua_State* L)
 {
     dmLogInfo("IAP_ProcessPendingTransactions");
     DM_LUA_STACK_CHECK(L, 0);
-    
-    // dmAndroid::ThreadAttacher thread;
-    // JNIEnv* env = thread.GetEnv();
     
     return 0;
 }
@@ -630,7 +588,6 @@ static void LuaInit(lua_State* L)
     IAP_PushConstants(L);
 
 	Init(L);
-    //CheckPurchasesAvailability(L);
     GetAuthorizationStatus(L);
 
     lua_pop(L, 1);
@@ -673,7 +630,20 @@ static void OnEventBillingExtension(dmExtension::Params* params, const dmExtensi
     switch(event->m_Event)
     {
         case dmExtension::EVENT_ID_ACTIVATEAPP:
-        dmLogInfo("OnEventBillingExtension - EVENT_ID_ACTIVATEAPP");
+        {
+            dmLogInfo("OnEventBillingExtension - EVENT_ID_ACTIVATEAPP");
+            bool auth = GetCoreAuthorizationStatus();
+            if(auth && g_IAP.m_buyStarted){
+                dmLogInfo("OnEventBillingExtension - EVENT_ID_ACTIVATEAPP - getPurchases");
+                dmAndroid::ThreadAttacher thread;
+                JNIEnv* env = thread.GetEnv();
+
+                jclass cls = dmAndroid::LoadClass(env, "ru.rustore.defold.billing.RuStoreBilling");
+                jmethodID method = env->GetStaticMethodID(cls, "getPurchases", "()V");
+
+                env->CallStaticVoidMethod(cls, method);
+            }
+        }
         break;
         case dmExtension::EVENT_ID_DEACTIVATEAPP:
         dmLogInfo("OnEventBillingExtension - EVENT_ID_DEACTIVATEAPP");
