@@ -41,6 +41,10 @@ public class RuStoreJsonConverter {
 				original.put("currency_code", original.get("currency"));
 				original.put("price_string", original.get("priceLabel"));
 
+				if (original.has("price")) {
+					original.put("price", original.getDouble("price")*.01);
+				}
+
 				transformedArray.put(original);
 			}
 
@@ -133,6 +137,10 @@ public class RuStoreJsonConverter {
 				original.put("receipt", original.get("purchaseId"));
 				original.put("signature", original.get("subscriptionToken"));
 				original.put("original_json", "{}");
+
+				if (original.has("amount")) {
+					original.put("amount", original.getDouble("amount")*.01);
+				}
 
 				return original.toString();
 			}
